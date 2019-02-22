@@ -15,7 +15,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final _toDoController = TextEditingController();
+
   List _todoList = [];
+
+  void _addTodo() {
+    setState(() {
+      Map<String, dynamic> newTodo = Map();
+      newTodo["title"] = _toDoController.text;
+      _toDoController.text = '';
+      newTodo["status"] = false;
+
+      _todoList.add(newTodo);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +46,7 @@ class _HomeState extends State<Home> {
               children: <Widget>[
                 Expanded(
                   child: TextField(
+                    controller: _toDoController,
                     decoration: InputDecoration(
                         labelText: 'Nova tarefa',
                         labelStyle: TextStyle(color: Colors.blueAccent)),
@@ -42,7 +56,7 @@ class _HomeState extends State<Home> {
                   color: Colors.blueAccent,
                   child: Text('Add'),
                   textColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: _addTodo,
                 )
               ],
             ),
@@ -57,10 +71,13 @@ class _HomeState extends State<Home> {
                   value: _todoList[index]["status"],
                   secondary: CircleAvatar(
                     child: Icon(
-                        _todoList[index]["status"] ? Icons.check : Icons.error
-                    ),
+                        _todoList[index]["status"] ? Icons.check : Icons.error),
                   ),
-                  onChanged: (value) {},
+                  onChanged: (check) {
+                    setState(() {
+                     _todoList[index]['status'] = check; 
+                    });
+                  },
                 );
               },
             ),
