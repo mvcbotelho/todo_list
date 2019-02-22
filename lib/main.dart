@@ -19,6 +19,17 @@ class _HomeState extends State<Home> {
 
   List _todoList = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+    _readData().then((data) {
+      setState(() {
+        _todoList = json.decode(data);
+      });
+    });
+  }
+
   void _addTodo() {
     setState(() {
       Map<String, dynamic> newTodo = Map();
@@ -27,6 +38,7 @@ class _HomeState extends State<Home> {
       newTodo["status"] = false;
 
       _todoList.add(newTodo);
+      _saveData();
     });
   }
 
@@ -65,24 +77,37 @@ class _HomeState extends State<Home> {
             child: ListView.builder(
               padding: EdgeInsets.only(top: 10.0),
               itemCount: _todoList.length,
-              itemBuilder: (context, index) {
-                return CheckboxListTile(
-                  title: Text(_todoList[index]["title"]),
-                  value: _todoList[index]["status"],
-                  secondary: CircleAvatar(
-                    child: Icon(
-                        _todoList[index]["status"] ? Icons.check : Icons.error),
-                  ),
-                  onChanged: (check) {
-                    setState(() {
-                     _todoList[index]['status'] = check; 
-                    });
-                  },
-                );
-              },
+              itemBuilder: buildItem,
             ),
           )
         ],
+      ),
+    );
+  }
+
+  Widget buildItem(context, index) {
+    return Dismissible(
+      key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment(-0.9, 0.0),
+          child: Icon(Icons.delete, color: Colors.white),
+        ),
+      ),
+      direction: DismissDirection.startToEnd,
+      child: CheckboxListTile(
+        title: Text(_todoList[index]["title"]),
+        value: _todoList[index]["status"],
+        secondary: CircleAvatar(
+          child: Icon(_todoList[index]["status"] ? Icons.check : Icons.error),
+        ),
+        onChanged: (check) {
+          setState(() {
+            _todoList[index]['status'] = check;
+            _saveData();
+          });
+        },
       ),
     );
   }
